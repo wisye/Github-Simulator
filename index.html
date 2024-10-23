@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Simulation</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>GitHub Simulation</h1>
+
+        <div class="input">
+            <input id="users" type="text"/>
+            <button type="submit" onclick="usersInput()">Submit</button>
+        </div>
+            
+        <br>
+
+        <div class="buttons">
+            <button onclick="gitAdd()">Add</button>
+            <button onclick="gitCommit()">Commit</button>
+            <button onclick="gitPush()">Push</button>
+            <button onclick="gitPull()">Pull</button>
+            <button onclick="gitFetch()">Fetch</button>
+            <button onclick="gitStash()">Stash</button>
+            <button onclick="otherPush()">Update Remote</button>
+        </div>
+        <div class="repos">
+            <div class="repo" id="workingDir">
+                <h2>Working Directory</h2>
+                <div class="blocks" id="workingDirBlocks"></div>
+            </div>
+            <div class="repo" id="stagingArea">
+                <h2>Staging Area</h2>
+                <div class="blocks" id="stagingBlocks"></div>
+            </div>
+            <div class="repo" id="localRepo">
+                <h2>Local Repository</h2>
+                <div class="blocks" id="localBlocks"></div>
+            </div>
+            <div class="repo" id="remoteRepo">
+                <h2>Remote Repository</h2>
+                <div class="blocks" id="remoteBlocks"></div>
+            </div>
+            <div class="repo" id="stashRepo">
+                <h2>Stash</h2>
+                <div class="blocks" id="stashBlocks"></div>
+            </div>
+        </div>
+        <div class="display" id="displayArea">
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
