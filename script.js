@@ -6,6 +6,7 @@ let stashedRepo = [];
 let counterAdd = 1;
 let counterCommit = 1;
 let counterPush = 1;
+let counterStash = 1;
 let counterImOutOfNames = 1;
 
 function peek(array) {
@@ -80,19 +81,22 @@ function gitFetch() {
 }
 
 function gitStash() {
-	console.log("git stash called");
 	if (localRepo.length === 1) {
-		stashedRepo.push(localRepo.pop());
+		counterStash = counterPush;
+		stashedRepo[0] = localRepo.pop();
 		updateDisplay("git stash: Stashed changes.");
 		renderRepos();
 	}
 }
 
-// function gitCheckout() {
-// 	console.log("git checkout called");
-// 	updateDisplay("git checkout: Checked out to a different branch.");
-// 	renderRepos();
-// }
+function gitStashApply() {
+	if (stashedRepo.length === 1) {
+		counterPush = counterStash;
+		localRepo[0] = stashedRepo.pop();
+		updateDisplay("git stash apply: Applied stashed changes.");
+		renderRepos();
+	}
+}
 
 function otherPush() {
 	if (remoteRepo.length !== 1) return;
@@ -124,11 +128,11 @@ function renderBlocks(containerId, blocks) {
 	blocks.forEach((block, index) => {
 		const blockElement = document.createElement("div");
 		blockElement.className = "block";
-		if (containerId === "workingDirBlocks") blockElement.textContent = `HEAD : ${block} - Version ${counterAdd}`;
-		else if (containerId === "stagingBlocks") blockElement.textContent = `HEAD : ${block} - Version ${counterCommit}`;
-		else if (containerId === "localBlocks") blockElement.textContent = `HEAD : ${block} - Version ${counterPush}`;
-		else if (containerId === "remoteBlocks") blockElement.textContent = `HEAD : ${block} - Version ${counterImOutOfNames}`;
-		else if (containerId === "stashBlocks") blockElement.textContent = `HEAD : ${block} - Version ${counterPush}`;
+		if (containerId === "workingDirBlocks") blockElement.textContent = `${block} - Version ${counterAdd}`;
+		else if (containerId === "stagingBlocks") blockElement.textContent = `${block} - Version ${counterCommit}`;
+		else if (containerId === "localBlocks") blockElement.textContent = `${block} - Version ${counterPush}`;
+		else if (containerId === "remoteBlocks") blockElement.textContent = `${block} - Version ${counterImOutOfNames}`;
+		else if (containerId === "stashBlocks") blockElement.textContent = `${block} - Version ${counterStash}`;
 		container.appendChild(blockElement);
 	});
 }
