@@ -1,3 +1,4 @@
+	.file	"http.c"
 	.text
 	.globl	db
 	.bss
@@ -152,16 +153,18 @@ count_callback:
 	.size	count_callback, .-count_callback
 	.section	.rodata
 .LC5:
-	.string	"Authenticating user: %s\n"
+	.string	"Password before hashing: %s\n"
 .LC6:
+	.string	"Authenticating user: %s\n"
+.LC7:
 	.string	"Hashed password: %s\n"
 	.align 8
-.LC7:
+.LC8:
 	.string	"SELECT COUNT(*) FROM users WHERE username = ? AND password = ?"
 	.align 8
-.LC8:
-	.string	"Failed to prepare statement: %s\n"
 .LC9:
+	.string	"Failed to prepare statement: %s\n"
+.LC10:
 	.string	"Failed to execute query: %s\n"
 	.text
 	.globl	authenticate_user
@@ -177,6 +180,11 @@ authenticate_user:
 	addq	$-128, %rsp
 	movq	%rdi, -120(%rbp)
 	movq	%rsi, -128(%rbp)
+	movq	-128(%rbp), %rax
+	movq	%rax, %rsi
+	movl	$.LC5, %edi
+	movl	$0, %eax
+	call	printf
 	leaq	-96(%rbp), %rdx
 	movq	-128(%rbp), %rax
 	movq	%rdx, %rsi
@@ -184,15 +192,15 @@ authenticate_user:
 	call	hash_password
 	movq	-120(%rbp), %rax
 	movq	%rax, %rsi
-	movl	$.LC5, %edi
+	movl	$.LC6, %edi
 	movl	$0, %eax
 	call	printf
 	leaq	-96(%rbp), %rax
 	movq	%rax, %rsi
-	movl	$.LC6, %edi
+	movl	$.LC7, %edi
 	movl	$0, %eax
 	call	printf
-	movq	$.LC7, -16(%rbp)
+	movq	$.LC8, -16(%rbp)
 	movq	db(%rip), %rax
 	leaq	-104(%rbp), %rdx
 	movq	-16(%rbp), %rsi
@@ -209,7 +217,7 @@ authenticate_user:
 	call	sqlite3_errmsg
 	movq	%rax, %rdx
 	movq	stderr(%rip), %rax
-	movl	$.LC8, %esi
+	movl	$.LC9, %esi
 	movq	%rax, %rdi
 	movl	$0, %eax
 	call	fprintf
@@ -249,7 +257,7 @@ authenticate_user:
 	call	sqlite3_errmsg
 	movq	%rax, %rdx
 	movq	stderr(%rip), %rax
-	movl	$.LC9, %esi
+	movl	$.LC10, %esi
 	movq	%rax, %rdi
 	movl	$0, %eax
 	call	fprintf
@@ -268,16 +276,16 @@ authenticate_user:
 .LFE321:
 	.size	authenticate_user, .-authenticate_user
 	.section	.rodata
-.LC10:
+.LC11:
 	.string	"Registering user: %s\n"
 	.align 8
-.LC11:
-	.string	"INSERT INTO users (username, password) VALUES ('%s', '%s');"
 .LC12:
-	.string	"SQL query: %s\n"
+	.string	"INSERT INTO users (username, password) VALUES ('%s', '%s');"
 .LC13:
-	.string	"SQL error: %s\n"
+	.string	"SQL query: %s\n"
 .LC14:
+	.string	"SQL error: %s\n"
+.LC15:
 	.string	"User registered successfully\n"
 	.text
 	.globl	register_user
@@ -293,6 +301,11 @@ register_user:
 	subq	$368, %rsp
 	movq	%rdi, -360(%rbp)
 	movq	%rsi, -368(%rbp)
+	movq	-368(%rbp), %rax
+	movq	%rax, %rsi
+	movl	$.LC5, %edi
+	movl	$0, %eax
+	call	printf
 	leaq	-80(%rbp), %rdx
 	movq	-368(%rbp), %rax
 	movq	%rdx, %rsi
@@ -300,12 +313,12 @@ register_user:
 	call	hash_password
 	movq	-360(%rbp), %rax
 	movq	%rax, %rsi
-	movl	$.LC10, %edi
+	movl	$.LC11, %edi
 	movl	$0, %eax
 	call	printf
 	leaq	-80(%rbp), %rax
 	movq	%rax, %rsi
-	movl	$.LC6, %edi
+	movl	$.LC7, %edi
 	movl	$0, %eax
 	call	printf
 	movq	$0, -88(%rbp)
@@ -314,14 +327,14 @@ register_user:
 	leaq	-352(%rbp), %rax
 	movq	%rcx, %r8
 	movq	%rdx, %rcx
-	movl	$.LC11, %edx
+	movl	$.LC12, %edx
 	movl	$256, %esi
 	movq	%rax, %rdi
 	movl	$0, %eax
 	call	snprintf
 	leaq	-352(%rbp), %rax
 	movq	%rax, %rsi
-	movl	$.LC12, %edi
+	movl	$.LC13, %edi
 	movl	$0, %eax
 	call	printf
 	movq	db(%rip), %rax
@@ -337,7 +350,7 @@ register_user:
 	je	.L17
 	movq	-88(%rbp), %rdx
 	movq	stderr(%rip), %rax
-	movl	$.LC13, %esi
+	movl	$.LC14, %esi
 	movq	%rax, %rdi
 	movl	$0, %eax
 	call	fprintf
@@ -350,7 +363,7 @@ register_user:
 	movq	%rax, %rcx
 	movl	$29, %edx
 	movl	$1, %esi
-	movl	$.LC14, %edi
+	movl	$.LC15, %edi
 	call	fwrite
 .L19:
 	nop
@@ -361,32 +374,37 @@ register_user:
 .LFE322:
 	.size	register_user, .-register_user
 	.section	.rodata
-.LC15:
-	.string	"Received request:\n%s\n"
 .LC16:
-	.string	"POST /register"
+	.string	"Failed to read from socket"
 .LC17:
-	.string	"\r\n\r\n"
-	.align 8
+	.string	"Received request:\n%s\n"
 .LC18:
-	.string	"username=%49[^&]&password=%49s"
+	.string	"POST /register"
 .LC19:
-	.string	"Extracted username: %s\n"
+	.string	"\r\n\r\n"
 .LC20:
-	.string	"Extracted password: %s\n"
+	.string	"&"
 .LC21:
+	.string	"username="
+.LC22:
+	.string	"password="
+.LC23:
+	.string	"Extracted username: %s\n"
+.LC24:
+	.string	"Extracted password: %s\n"
+.LC25:
 	.string	"User registered"
 	.align 8
-.LC22:
-	.string	"HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: %zu\n\n%s"
-.LC23:
-	.string	"POST /login"
-.LC24:
-	.string	"Login successful"
-.LC25:
-	.string	"Invalid username or password"
 .LC26:
-	.string	"Hello world"
+	.string	"HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: %zu\n\n%s"
+.LC27:
+	.string	"POST /login"
+.LC28:
+	.string	"Login successful"
+.LC29:
+	.string	"Invalid username or password"
+.LC30:
+	.string	"i love furina so much fr fr"
 	.text
 	.globl	handle_client
 	.type	handle_client, @function
@@ -398,205 +416,294 @@ handle_client:
 	.cfi_offset 6, -16
 	movq	%rsp, %rbp
 	.cfi_def_cfa_register 6
-	subq	$2240, %rsp
-	movl	%edi, -2228(%rbp)
-	leaq	-1072(%rbp), %rcx
-	movl	-2228(%rbp), %eax
-	movl	$1024, %edx
+	subq	$2272, %rsp
+	movl	%edi, -2260(%rbp)
+	leaq	-1104(%rbp), %rcx
+	movl	-2260(%rbp), %eax
+	movl	$1023, %edx
 	movq	%rcx, %rsi
 	movl	%eax, %edi
 	call	read
-	leaq	-1072(%rbp), %rax
-	movq	%rax, %rsi
-	movl	$.LC15, %edi
-	movl	$0, %eax
-	call	printf
-	leaq	-1072(%rbp), %rax
-	movl	$.LC16, %esi
-	movq	%rax, %rdi
-	call	strstr
-	testq	%rax, %rax
-	je	.L21
-	leaq	-1072(%rbp), %rax
-	movl	$.LC17, %esi
-	movq	%rax, %rdi
-	call	strstr
-	movq	%rax, -40(%rbp)
-	cmpq	$0, -40(%rbp)
-	je	.L22
-	addq	$4, -40(%rbp)
-	movq	$0, -2224(%rbp)
-	movq	$0, -2216(%rbp)
-	movq	$0, -2208(%rbp)
-	movq	$0, -2200(%rbp)
-	movq	$0, -2192(%rbp)
-	movq	$0, -2184(%rbp)
-	movw	$0, -2176(%rbp)
-	movq	$0, -2160(%rbp)
-	movq	$0, -2152(%rbp)
-	movq	$0, -2144(%rbp)
-	movq	$0, -2136(%rbp)
-	movq	$0, -2128(%rbp)
-	movq	$0, -2120(%rbp)
-	movw	$0, -2112(%rbp)
-	leaq	-2160(%rbp), %rcx
-	leaq	-2224(%rbp), %rdx
-	movq	-40(%rbp), %rax
-	movl	$.LC18, %esi
-	movq	%rax, %rdi
-	movl	$0, %eax
-	call	__isoc99_sscanf
-	leaq	-2224(%rbp), %rax
-	movq	%rax, %rsi
-	movl	$.LC19, %edi
-	movl	$0, %eax
-	call	printf
-	leaq	-2160(%rbp), %rax
-	movq	%rax, %rsi
-	movl	$.LC20, %edi
-	movl	$0, %eax
-	call	printf
-	leaq	-2160(%rbp), %rdx
-	leaq	-2224(%rbp), %rax
-	movq	%rdx, %rsi
-	movq	%rax, %rdi
-	call	register_user
-	movq	$.LC21, -48(%rbp)
-	movq	-48(%rbp), %rax
-	movq	%rax, %rdi
-	call	strlen
-	movq	%rax, %rdx
-	movq	-48(%rbp), %rcx
-	leaq	-2096(%rbp), %rax
-	movq	%rcx, %r8
-	movq	%rdx, %rcx
-	movl	$.LC22, %edx
-	movl	$1024, %esi
-	movq	%rax, %rdi
-	movl	$0, %eax
-	call	snprintf
-	leaq	-2096(%rbp), %rax
-	movq	%rax, %rdi
-	call	strlen
-	movq	%rax, %rdx
-	leaq	-2096(%rbp), %rcx
-	movl	-2228(%rbp), %eax
-	movq	%rcx, %rsi
+	movl	%eax, -20(%rbp)
+	cmpl	$0, -20(%rbp)
+	jns	.L21
+	movl	$.LC16, %edi
+	call	perror
+	movl	-2260(%rbp), %eax
 	movl	%eax, %edi
-	call	write
-	jmp	.L22
+	call	close
+	jmp	.L20
 .L21:
-	leaq	-1072(%rbp), %rax
-	movl	$.LC23, %esi
+	movl	-20(%rbp), %eax
+	cltq
+	movb	$0, -1104(%rbp,%rax)
+	leaq	-1104(%rbp), %rax
+	movq	%rax, %rsi
+	movl	$.LC17, %edi
+	movl	$0, %eax
+	call	printf
+	leaq	-1104(%rbp), %rax
+	movl	$.LC18, %esi
 	movq	%rax, %rdi
 	call	strstr
 	testq	%rax, %rax
 	je	.L23
-	leaq	-1072(%rbp), %rax
-	movl	$.LC17, %esi
+	leaq	-1104(%rbp), %rax
+	movl	$.LC19, %esi
 	movq	%rax, %rdi
 	call	strstr
-	movq	%rax, -16(%rbp)
-	cmpq	$0, -16(%rbp)
-	je	.L22
-	addq	$4, -16(%rbp)
+	movq	%rax, -64(%rbp)
+	cmpq	$0, -64(%rbp)
+	je	.L24
+	addq	$4, -64(%rbp)
+	movq	$0, -2256(%rbp)
+	movq	$0, -2248(%rbp)
+	movq	$0, -2240(%rbp)
+	movq	$0, -2232(%rbp)
 	movq	$0, -2224(%rbp)
 	movq	$0, -2216(%rbp)
-	movq	$0, -2208(%rbp)
-	movq	$0, -2200(%rbp)
+	movw	$0, -2208(%rbp)
 	movq	$0, -2192(%rbp)
 	movq	$0, -2184(%rbp)
-	movw	$0, -2176(%rbp)
+	movq	$0, -2176(%rbp)
+	movq	$0, -2168(%rbp)
 	movq	$0, -2160(%rbp)
 	movq	$0, -2152(%rbp)
-	movq	$0, -2144(%rbp)
-	movq	$0, -2136(%rbp)
-	movq	$0, -2128(%rbp)
-	movq	$0, -2120(%rbp)
-	movw	$0, -2112(%rbp)
-	leaq	-2160(%rbp), %rcx
-	leaq	-2224(%rbp), %rdx
-	movq	-16(%rbp), %rax
-	movl	$.LC18, %esi
+	movw	$0, -2144(%rbp)
+	movq	-64(%rbp), %rax
+	movl	$.LC20, %esi
+	movq	%rax, %rdi
+	call	strtok
+	movq	%rax, -8(%rbp)
+	jmp	.L25
+.L28:
+	movq	-8(%rbp), %rax
+	movl	$9, %edx
+	movl	$.LC21, %esi
+	movq	%rax, %rdi
+	call	strncmp
+	testl	%eax, %eax
+	jne	.L26
+	movq	-8(%rbp), %rax
+	leaq	9(%rax), %rcx
+	leaq	-2256(%rbp), %rax
+	movl	$49, %edx
+	movq	%rcx, %rsi
+	movq	%rax, %rdi
+	call	strncpy
+	jmp	.L27
+.L26:
+	movq	-8(%rbp), %rax
+	movl	$9, %edx
+	movl	$.LC22, %esi
+	movq	%rax, %rdi
+	call	strncmp
+	testl	%eax, %eax
+	jne	.L27
+	movq	-8(%rbp), %rax
+	leaq	9(%rax), %rcx
+	leaq	-2192(%rbp), %rax
+	movl	$49, %edx
+	movq	%rcx, %rsi
+	movq	%rax, %rdi
+	call	strncpy
+.L27:
+	movl	$.LC20, %esi
+	movl	$0, %edi
+	call	strtok
+	movq	%rax, -8(%rbp)
+.L25:
+	cmpq	$0, -8(%rbp)
+	jne	.L28
+	leaq	-2256(%rbp), %rax
+	movq	%rax, %rsi
+	movl	$.LC23, %edi
+	movl	$0, %eax
+	call	printf
+	leaq	-2192(%rbp), %rax
+	movq	%rax, %rsi
+	movl	$.LC24, %edi
+	movl	$0, %eax
+	call	printf
+	leaq	-2192(%rbp), %rdx
+	leaq	-2256(%rbp), %rax
+	movq	%rdx, %rsi
+	movq	%rax, %rdi
+	call	register_user
+	movq	$.LC25, -72(%rbp)
+	movq	-72(%rbp), %rax
+	movq	%rax, %rdi
+	call	strlen
+	movq	%rax, %rdx
+	movq	-72(%rbp), %rcx
+	leaq	-2128(%rbp), %rax
+	movq	%rcx, %r8
+	movq	%rdx, %rcx
+	movl	$.LC26, %edx
+	movl	$1024, %esi
 	movq	%rax, %rdi
 	movl	$0, %eax
-	call	__isoc99_sscanf
-	leaq	-2224(%rbp), %rax
+	call	snprintf
+	leaq	-2128(%rbp), %rax
+	movq	%rax, %rdi
+	call	strlen
+	movq	%rax, %rdx
+	leaq	-2128(%rbp), %rcx
+	movl	-2260(%rbp), %eax
+	movq	%rcx, %rsi
+	movl	%eax, %edi
+	call	write
+	jmp	.L24
+.L23:
+	leaq	-1104(%rbp), %rax
+	movl	$.LC27, %esi
+	movq	%rax, %rdi
+	call	strstr
+	testq	%rax, %rax
+	je	.L29
+	leaq	-1104(%rbp), %rax
+	movl	$.LC19, %esi
+	movq	%rax, %rdi
+	call	strstr
+	movq	%rax, -40(%rbp)
+	cmpq	$0, -40(%rbp)
+	je	.L24
+	addq	$4, -40(%rbp)
+	movq	$0, -2256(%rbp)
+	movq	$0, -2248(%rbp)
+	movq	$0, -2240(%rbp)
+	movq	$0, -2232(%rbp)
+	movq	$0, -2224(%rbp)
+	movq	$0, -2216(%rbp)
+	movw	$0, -2208(%rbp)
+	movq	$0, -2192(%rbp)
+	movq	$0, -2184(%rbp)
+	movq	$0, -2176(%rbp)
+	movq	$0, -2168(%rbp)
+	movq	$0, -2160(%rbp)
+	movq	$0, -2152(%rbp)
+	movw	$0, -2144(%rbp)
+	movq	-40(%rbp), %rax
+	movl	$.LC20, %esi
+	movq	%rax, %rdi
+	call	strtok
+	movq	%rax, -16(%rbp)
+	jmp	.L30
+.L33:
+	movq	-16(%rbp), %rax
+	movl	$9, %edx
+	movl	$.LC21, %esi
+	movq	%rax, %rdi
+	call	strncmp
+	testl	%eax, %eax
+	jne	.L31
+	movq	-16(%rbp), %rax
+	leaq	9(%rax), %rcx
+	leaq	-2256(%rbp), %rax
+	movl	$49, %edx
+	movq	%rcx, %rsi
+	movq	%rax, %rdi
+	call	strncpy
+	jmp	.L32
+.L31:
+	movq	-16(%rbp), %rax
+	movl	$9, %edx
+	movl	$.LC22, %esi
+	movq	%rax, %rdi
+	call	strncmp
+	testl	%eax, %eax
+	jne	.L32
+	movq	-16(%rbp), %rax
+	leaq	9(%rax), %rcx
+	leaq	-2192(%rbp), %rax
+	movl	$49, %edx
+	movq	%rcx, %rsi
+	movq	%rax, %rdi
+	call	strncpy
+.L32:
+	movl	$.LC20, %esi
+	movl	$0, %edi
+	call	strtok
+	movq	%rax, -16(%rbp)
+.L30:
+	cmpq	$0, -16(%rbp)
+	jne	.L33
+	leaq	-2256(%rbp), %rax
 	movq	%rax, %rsi
-	movl	$.LC19, %edi
+	movl	$.LC23, %edi
 	movl	$0, %eax
 	call	printf
-	leaq	-2160(%rbp), %rax
+	leaq	-2192(%rbp), %rax
 	movq	%rax, %rsi
-	movl	$.LC20, %edi
+	movl	$.LC24, %edi
 	movl	$0, %eax
 	call	printf
-	leaq	-2160(%rbp), %rdx
-	leaq	-2224(%rbp), %rax
+	leaq	-2192(%rbp), %rdx
+	leaq	-2256(%rbp), %rax
 	movq	%rdx, %rsi
 	movq	%rax, %rdi
 	call	authenticate_user
-	movl	%eax, -20(%rbp)
-	cmpl	$0, -20(%rbp)
-	je	.L24
-	movl	$.LC24, %eax
-	jmp	.L25
-.L24:
-	movl	$.LC25, %eax
-.L25:
-	movq	%rax, -32(%rbp)
+	movl	%eax, -44(%rbp)
+	cmpl	$0, -44(%rbp)
+	je	.L34
+	movl	$.LC28, %eax
+	jmp	.L35
+.L34:
+	movl	$.LC29, %eax
+.L35:
+	movq	%rax, -56(%rbp)
+	movq	-56(%rbp), %rax
+	movq	%rax, %rdi
+	call	strlen
+	movq	%rax, %rdx
+	movq	-56(%rbp), %rcx
+	leaq	-2128(%rbp), %rax
+	movq	%rcx, %r8
+	movq	%rdx, %rcx
+	movl	$.LC26, %edx
+	movl	$1024, %esi
+	movq	%rax, %rdi
+	movl	$0, %eax
+	call	snprintf
+	leaq	-2128(%rbp), %rax
+	movq	%rax, %rdi
+	call	strlen
+	movq	%rax, %rdx
+	leaq	-2128(%rbp), %rcx
+	movl	-2260(%rbp), %eax
+	movq	%rcx, %rsi
+	movl	%eax, %edi
+	call	write
+	jmp	.L24
+.L29:
+	movq	$.LC30, -32(%rbp)
 	movq	-32(%rbp), %rax
 	movq	%rax, %rdi
 	call	strlen
 	movq	%rax, %rdx
 	movq	-32(%rbp), %rcx
-	leaq	-2096(%rbp), %rax
+	leaq	-2128(%rbp), %rax
 	movq	%rcx, %r8
 	movq	%rdx, %rcx
-	movl	$.LC22, %edx
+	movl	$.LC26, %edx
 	movl	$1024, %esi
 	movq	%rax, %rdi
 	movl	$0, %eax
 	call	snprintf
-	leaq	-2096(%rbp), %rax
+	leaq	-2128(%rbp), %rax
 	movq	%rax, %rdi
 	call	strlen
 	movq	%rax, %rdx
-	leaq	-2096(%rbp), %rcx
-	movl	-2228(%rbp), %eax
+	leaq	-2128(%rbp), %rcx
+	movl	-2260(%rbp), %eax
 	movq	%rcx, %rsi
 	movl	%eax, %edi
 	call	write
-	jmp	.L22
-.L23:
-	movq	$.LC26, -8(%rbp)
-	movq	-8(%rbp), %rax
-	movq	%rax, %rdi
-	call	strlen
-	movq	%rax, %rdx
-	movq	-8(%rbp), %rcx
-	leaq	-2096(%rbp), %rax
-	movq	%rcx, %r8
-	movq	%rdx, %rcx
-	movl	$.LC22, %edx
-	movl	$1024, %esi
-	movq	%rax, %rdi
-	movl	$0, %eax
-	call	snprintf
-	leaq	-2096(%rbp), %rax
-	movq	%rax, %rdi
-	call	strlen
-	movq	%rax, %rdx
-	leaq	-2096(%rbp), %rcx
-	movl	-2228(%rbp), %eax
-	movq	%rcx, %rsi
-	movl	%eax, %edi
-	call	write
-.L22:
-	movl	-2228(%rbp), %eax
+.L24:
+	movl	-2260(%rbp), %eax
 	movl	%eax, %edi
 	call	close
-	nop
+.L20:
 	leave
 	.cfi_def_cfa 7, 8
 	ret
@@ -604,16 +711,16 @@ handle_client:
 .LFE323:
 	.size	handle_client, .-handle_client
 	.section	.rodata
-.LC27:
+.LC31:
 	.string	"virtual_lab.db"
-.LC28:
+.LC32:
 	.string	"Can't open database: %s\n"
-.LC29:
+.LC33:
 	.string	"Opened database successfully\n"
 	.align 8
-.LC30:
+.LC34:
 	.string	"CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT,username TEXT NOT NULL,password TEXT NOT NULL);"
-.LC31:
+.LC35:
 	.string	"Table created successfully\n"
 	.text
 	.globl	init_db
@@ -628,30 +735,30 @@ init_db:
 	.cfi_def_cfa_register 6
 	subq	$32, %rsp
 	movl	$db, %esi
-	movl	$.LC27, %edi
+	movl	$.LC31, %edi
 	call	sqlite3_open
 	movl	%eax, -4(%rbp)
 	cmpl	$0, -4(%rbp)
-	je	.L27
+	je	.L37
 	movq	db(%rip), %rax
 	movq	%rax, %rdi
 	call	sqlite3_errmsg
 	movq	%rax, %rdx
 	movq	stderr(%rip), %rax
-	movl	$.LC28, %esi
+	movl	$.LC32, %esi
 	movq	%rax, %rdi
 	movl	$0, %eax
 	call	fprintf
 	movl	$1, %edi
 	call	exit
-.L27:
+.L37:
 	movq	stderr(%rip), %rax
 	movq	%rax, %rcx
 	movl	$29, %edx
 	movl	$1, %esi
-	movl	$.LC29, %edi
+	movl	$.LC33, %edi
 	call	fwrite
-	movq	$.LC30, -16(%rbp)
+	movq	$.LC34, -16(%rbp)
 	movq	$0, -24(%rbp)
 	movq	db(%rip), %rax
 	leaq	-24(%rbp), %rdx
@@ -663,10 +770,10 @@ init_db:
 	call	sqlite3_exec
 	movl	%eax, -4(%rbp)
 	cmpl	$0, -4(%rbp)
-	je	.L28
+	je	.L38
 	movq	-24(%rbp), %rdx
 	movq	stderr(%rip), %rax
-	movl	$.LC13, %esi
+	movl	$.LC14, %esi
 	movq	%rax, %rdi
 	movl	$0, %eax
 	call	fprintf
@@ -675,12 +782,12 @@ init_db:
 	call	sqlite3_free
 	movl	$1, %edi
 	call	exit
-.L28:
+.L38:
 	movq	stderr(%rip), %rax
 	movq	%rax, %rcx
 	movl	$27, %edx
 	movl	$1, %esi
-	movl	$.LC31, %edi
+	movl	$.LC35, %edi
 	call	fwrite
 	nop
 	leave
@@ -710,14 +817,14 @@ close_db:
 .LFE325:
 	.size	close_db, .-close_db
 	.section	.rodata
-.LC32:
+.LC36:
 	.string	"Socket creation failed"
-.LC33:
+.LC37:
 	.string	"Bind failed"
-.LC34:
+.LC38:
 	.string	"Listen failed"
 	.align 8
-.LC35:
+.LC39:
 	.string	"Server is listening on port %d\n"
 	.text
 	.globl	main
@@ -740,12 +847,12 @@ main:
 	call	socket
 	movl	%eax, -4(%rbp)
 	cmpl	$-1, -4(%rbp)
-	jne	.L31
-	movl	$.LC32, %edi
+	jne	.L41
+	movl	$.LC36, %edi
 	call	perror
 	movl	$1, %edi
 	call	exit
-.L31:
+.L41:
 	movw	$2, -32(%rbp)
 	movl	$0, -28(%rbp)
 	movl	$8080, %edi
@@ -758,39 +865,39 @@ main:
 	movl	%eax, %edi
 	call	bind
 	cmpl	$-1, %eax
-	jne	.L32
-	movl	$.LC33, %edi
+	jne	.L42
+	movl	$.LC37, %edi
 	call	perror
 	movl	-4(%rbp), %eax
 	movl	%eax, %edi
 	call	close
 	movl	$1, %edi
 	call	exit
-.L32:
+.L42:
 	movl	-4(%rbp), %eax
 	movl	$10, %esi
 	movl	%eax, %edi
 	call	listen
 	cmpl	$-1, %eax
-	jne	.L33
-	movl	$.LC34, %edi
+	jne	.L43
+	movl	$.LC38, %edi
 	call	perror
 	movl	-4(%rbp), %eax
 	movl	%eax, %edi
 	call	close
 	movl	$1, %edi
 	call	exit
-.L33:
+.L43:
 	movl	$8080, %esi
-	movl	$.LC35, %edi
+	movl	$.LC39, %edi
 	movl	$0, %eax
 	call	printf
-	jmp	.L34
-.L35:
+	jmp	.L44
+.L45:
 	movl	-8(%rbp), %eax
 	movl	%eax, %edi
 	call	handle_client
-.L34:
+.L44:
 	leaq	-52(%rbp), %rdx
 	leaq	-48(%rbp), %rcx
 	movl	-4(%rbp), %eax
@@ -799,7 +906,7 @@ main:
 	call	accept
 	movl	%eax, -8(%rbp)
 	cmpl	$-1, -8(%rbp)
-	jne	.L35
+	jne	.L45
 	movl	-4(%rbp), %eax
 	movl	%eax, %edi
 	call	close
