@@ -8,7 +8,6 @@ let counterCommit = 1;
 let counterPush = 1;
 let counterStash = 1;
 let counterImOutOfNames = 1;
-// In script.js - Add at the top
 let currentUserId = null;
 
 async function register(username, password) {
@@ -26,7 +25,7 @@ async function register(username, password) {
 			updateDisplay("Registration successful");
 			return true;
 		} else {
-			updateDisplay(text); // Show error message
+			updateDisplay(text);
 			return false;
 		}
 	} catch (error) {
@@ -36,7 +35,6 @@ async function register(username, password) {
 	}
 }
 
-// In script.js, update login function
 async function login(username, password) {
 	try {
 		const response = await fetch('/login', {
@@ -52,7 +50,6 @@ async function login(username, password) {
 			const userId = await getUserId(username);
 			currentUserId = userId;
 
-			// Save currentUserId to localStorage
 			localStorage.setItem('currentUserId', currentUserId);
 
 			updateDisplay("Login successful");
@@ -72,14 +69,12 @@ async function login(username, password) {
 	}
 }
 
-// Check for stored user ID on page load
 window.addEventListener('load', () => {
 	const storedUserId = localStorage.getItem('currentUserId');
 	if (storedUserId) {
 		currentUserId = parseInt(storedUserId);
 		document.getElementById('auth-container').style.display = 'none';
 		document.getElementById('main-container').style.display = 'block';
-		// Optionally, load the saved state
 		loadState();
 		renderRepos();
 	}
@@ -111,7 +106,6 @@ async function logout() {
 		updateDisplay("Logout failed");
 	}
 
-	// Clear client-side session data
 	currentUserId = null;
 	localStorage.removeItem('currentUserId');
 	document.getElementById('auth-container').style.display = 'block';
@@ -124,7 +118,6 @@ async function logout() {
 	renderRepos();
 }
 
-// Add this helper function
 async function getUserId(username) {
 	try {
 		const response = await fetch(`/getUserId?name=${username}`);
@@ -181,7 +174,6 @@ async function loadState() {
 		const data = await response.text();
 		if (data && data !== "No data found") {
 			const state = JSON.parse(data);
-			// Update all state variables
 			workingDir = state.workingDir;
 			stagingArea = state.stagingArea;
 			localRepo = state.localRepo;
@@ -201,7 +193,6 @@ async function loadState() {
 	}
 }
 
-// Add styles to ensure proper visibility
 const styles = document.createElement('style');
 styles.textContent = `
 	#auth-container { display: block; }
@@ -210,7 +201,6 @@ styles.textContent = `
 document.head.appendChild(styles);
 
 async function getCurrentUserId(username) {
-	// You'll need to add an endpoint for this
 	const response = await fetch(`/getUserId?username=${username}`);
 	const data = await response.json();
 	return data.id;
@@ -396,7 +386,6 @@ function usersInput() {
 	}
 }
 
-// Add these handler functions
 async function handleRegister() {
 	const username = document.getElementById('reg-username').value;
 	const password = document.getElementById('reg-password').value;
@@ -421,7 +410,6 @@ async function handleLogin() {
 	await login(username, password);
 }
 
-// Update your save/load functions to use currentUserId
 async function saveState() {
 	if (!currentUserId) {
 		updateDisplay("Please login first");
