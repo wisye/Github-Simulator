@@ -1,3 +1,4 @@
+	.file	"http.c"
 	.text
 	.globl	db
 	.bss
@@ -1998,7 +1999,7 @@ main:
 .L94:
 	movw	$2, -32(%rbp)
 	movl	$0, -28(%rbp)
-	movl	$8080, %edi
+	movl	$8069, %edi
 	call	htons
 	movw	%ax, -30(%rbp)
 	leaq	-32(%rbp), %rcx
@@ -2031,7 +2032,7 @@ main:
 	movl	$1, %edi
 	call	exit
 .L96:
-	movl	$8080, %esi
+	movl	$8069, %esi
 	movl	$.LC89, %edi
 	movl	$0, %eax
 	call	printf
@@ -2060,3 +2061,7 @@ main:
 	.cfi_def_cfa 7, 8
 	ret
 	.cfi_endproc
+.LFE329:
+	.size	main, .-main
+	.ident	"GCC: (GNU) 14.2.1 20240912 (Red Hat 14.2.1-3)"
+	.section	.note.GNU-stack,"",@progbits
